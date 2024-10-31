@@ -67,6 +67,7 @@ function apiDocumentEndpoints(app) {
                   "published": "1/16/2024, 3:07:00 PM",
                   "wordCount": 93,
                   "token_count_estimate": 115,
+                  "pageNumbers": ["1", "2", "3"]
                 }
               ]
             }

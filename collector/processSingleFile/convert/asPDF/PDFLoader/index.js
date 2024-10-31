@@ -19,6 +19,7 @@ class PDFLoader {
 
     const meta = await pdf.getMetadata().catch(() => null);
     const documents = [];
+    const pageNumbers = [];
 
     for (let i = 1; i <= pdf.numPages; i += 1) {
       const page = await pdf.getPage(i);
@@ -55,6 +56,7 @@ class PDFLoader {
           loc: { pageNumber: i },
         },
       });
+      pageNumbers.push(i);
     }
 
     if (this.splitPages) {
@@ -76,6 +78,7 @@ class PDFLoader {
             metadata: meta?.metadata,
             totalPages: pdf.numPages,
           },
+          loc: { pageNumbers },
         },
       },
     ];

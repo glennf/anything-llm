@@ -15,6 +15,7 @@ async function asPdf({ fullFilePath = "", filename = "" }) {
 
   console.log(`-- Working ${filename} --`);
   const pageContent = [];
+  const pageNumbers = [];
   const docs = await pdfLoader.load();
 
   for (const doc of docs) {
@@ -25,6 +26,7 @@ async function asPdf({ fullFilePath = "", filename = "" }) {
     );
     if (!doc.pageContent || !doc.pageContent.length) continue;
     pageContent.push(doc.pageContent);
+    pageNumbers.push(doc.metadata?.loc?.pageNumber || "unknown");
   }
 
   if (!pageContent.length) {
@@ -49,6 +51,7 @@ async function asPdf({ fullFilePath = "", filename = "" }) {
     published: createdDate(fullFilePath),
     wordCount: content.split(" ").length,
     pageContent: content,
+    pageNumbers: pageNumbers,
     token_count_estimate: tokenizeString(content).length,
   };
 
