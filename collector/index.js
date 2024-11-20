@@ -7,6 +7,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
+const fs = require("fs");
 const { ACCEPTED_MIMES } = require("./utils/constants");
 const { reqBody } = require("./utils/http");
 const { processSingleFile } = require("./processSingleFile");
@@ -28,6 +29,26 @@ app.use(
   })
 );
 
+async function processFolder(folderPath, options = {}) {
+  const files = fs.readdirSync(folderPath);
+  const results = [];
+
+  for (const file of files) {
+    const fullPath = path.join(folderPath, file);
+    const stat = fs.statSync(fullPath);
+
+    if (stat.isDirectory()) {
+      const subResults = await processFolder(fullPath, options);
+      results.push(...subResults);
+    } else {
+      const result = await processSingleFile(fullPath, options);
+      results.push(result);
+    }
+  }
+
+  return results;
+}
+
 app.post(
   "/process",
   [verifyPayloadIntegrity],
@@ -37,14 +58,16 @@ app.post(
       const targetFilename = path
         .normalize(filename)
         .replace(/^(\.\.(\/|\\|$))+/, "");
-      const {
-        success,
-        reason,
-        documents = [],
-      } = await processSingleFile(targetFilename, options);
-      response
-        .status(200)
-        .json({ filename: targetFilename, success, reason, documents });
+      const stat = fs.statSync(targetFilename);
+
+      let results;
+      if (stat.isDirectory()) {
+        results = await processFolder(targetFilename, options);
+      } else {
+        results = [await processSingleFile(targetFilename, options)];
+      }
+
+      response.status(200).json({ filename: targetFilename, results });
     } catch (e) {
       console.error(e);
       response.status(200).json({

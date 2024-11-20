@@ -83,7 +83,7 @@ export default function UploadFile({
         } hover:bg-zinc-900/90`}
         {...getRootProps()}
       >
-        <input {...getInputProps()} />
+        <input {...getInputProps()} webkitdirectory="" />
         {ready === false ? (
           <div className="flex flex-col items-center justify-center h-full">
             <CloudArrowUp className="w-8 h-8 text-white/80" />

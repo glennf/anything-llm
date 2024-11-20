@@ -106,6 +106,54 @@ function documentEndpoints(app) {
       }
     }
   );
+
+  app.post(
+    "/document/upload-folder",
+    [validatedRequest, flexUserRoleValid([ROLES.admin, ROLES.manager])],
+    async (request, response) => {
+      try {
+        const { folderPath } = reqBody(request);
+        const storagePath = path.join(documentsPath, normalizePath(folderPath));
+        if (!isWithin(path.resolve(documentsPath), path.resolve(storagePath)))
+          throw new Error("Invalid folder path.");
+
+        if (!fs.existsSync(storagePath)) {
+          response.status(500).json({
+            success: false,
+            message: "Folder does not exist",
+          });
+          return;
+        }
+
+        const processFilesRecursively = (dir) => {
+          const results = [];
+          const list = fs.readdirSync(dir);
+          list.forEach((file) => {
+            const filePath = path.join(dir, file);
+            const stat = fs.statSync(filePath);
+            if (stat && stat.isDirectory()) {
+              results.push(...processFilesRecursively(filePath));
+            } else {
+              results.push(filePath);
+            }
+          });
+          return results;
+        };
+
+        const files = processFilesRecursively(storagePath);
+        // Process each file as needed
+        // Add your file processing logic here
+
+        response.status(200).json({ success: true, message: null, files });
+      } catch (e) {
+        console.error(e);
+        response.status(500).json({
+          success: false,
+          message: `Failed to upload folder: ${e.message} `,
+        });
+      }
+    }
+  );
 }
 
 module.exports = { documentEndpoints };

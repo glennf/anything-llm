@@ -27,6 +27,7 @@ const ACCEPTED_MIMES = {
   "video/mp4": [".mp4"],
   "video/mpeg": [".mpeg"],
   "application/epub+zip": [".epub"],
+  "application/x-directory": ["directory"], // Added to support folder uploads
 };
 
 const SUPPORTED_FILETYPE_CONVERTERS = {
@@ -55,6 +56,7 @@ const SUPPORTED_FILETYPE_CONVERTERS = {
   ".wav": "./convert/asAudio.js",
   ".mp4": "./convert/asAudio.js",
   ".mpeg": "./convert/asAudio.js",
+  "directory": "./convert/asDirectory.js", // Added to support folder uploads
 };
 
 module.exports = {
